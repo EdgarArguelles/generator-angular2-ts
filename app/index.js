@@ -52,6 +52,7 @@
         this.copy('src/app/pages/app/_app.html', 'src/app/pages/app/app.html');
         this.copy('src/app/pages/app/_app.ts', 'src/app/pages/app/app.ts');
         this.copy('src/app/pages/app/_app.ts', 'src/app/pages/app/app.ts');
+        this.copy('src/app/_bootstrap.ts', 'src/app/bootstrap.ts');
         this.copy('src/_index.html', 'src/index.html');
       }
     },
