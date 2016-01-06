@@ -33,18 +33,18 @@
 
     writing: {
       app: function () {
-        this.basicTemplate = 'src/' + lodash.kebabCase(this.appname);
-
-        this.copy('_package.json', 'package.json');
-        this.copy('_gulpfile.js', 'gulpfile.js');
-        this.copy('_readme.md', 'readme.md');
         this.copy('_editorconfig', '.editorconfig');
         this.copy('_gitignore', '.gitignore');
+        this.copy('_gulpfile.js', 'gulpfile.js');
+        this.copy('_karma.conf.js', 'karma.conf.js');
+        this.copy('_license', 'LICENSE');
+        this.copy('_package.json', 'package.json');
+        this.copy('_readme.md', 'README.md');
+        this.copy('_test-main.js', 'test-main.js');
+        this.copy('_tsconfig.json', 'tsconfig.json');
+        this.copy('_tsd.json', 'tsd.json');
 
-        this.copy('src/_index.js', 'src/index.js');
-        this.copy('src/_index.html', 'src/index.html');
-        this.copy('src/_basic-template.html', this.basicTemplate + '.html');
-        this.copy('src/_basic-template.js', this.basicTemplate + '.js');
+        this.copy('src/**/*', 'src/');
       }
     },
 
