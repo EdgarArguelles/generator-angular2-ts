@@ -45,7 +45,7 @@
         this.copy('_tsd.json', 'tsd.json');
 
         this.copy('src/app/components/header/_header.html', 'src/app/components/header/header.html');
-        this.copy('src/app/components/header/_header.spec.js', 'src/app/components/header/header.spec.js');
+        this.copy('src/app/components/header/_header.spec.ts', 'src/app/components/header/header.spec.ts');
         this.copy('src/app/components/header/_header.ts', 'src/app/components/header/header.ts');
         this.copy('src/app/config/_local.env.sample.ts', 'src/app/config/local.env.sample.ts');
         this.copy('src/app/config/_paths.ts', 'src/app/config/paths.ts');
