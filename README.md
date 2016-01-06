@@ -1,4 +1,5 @@
 # Generator Angular2 with TypeScript
+## WORK IN PROGRESS!
 
 ![Angular 2 with TypeScript Generator](https://raw.githubusercontent.com/rrgarciach/generator-angular2-ts/master/assets/banner.png)
 
