@@ -44,7 +44,15 @@
         this.copy('_tsconfig.json', 'tsconfig.json');
         this.copy('_tsd.json', 'tsd.json');
 
-        this.copy('src/**/*', 'src/');
+        this.copy('src/app/components/header/_header.html', 'src/app/components/header/header.html');
+        this.copy('src/app/components/header/_header.spec.js', 'src/app/components/header/header.spec.js');
+        this.copy('src/app/components/header/_header.ts', 'src/app/components/header/header.ts');
+        this.copy('src/app/config/_local.env.sample.ts', 'src/app/config/local.env.sample.ts');
+        this.copy('src/app/config/_paths.ts', 'src/app/config/paths.ts');
+        this.copy('src/app/pages/app/_app.html', 'src/app/pages/app/app.html');
+        this.copy('src/app/pages/app/_app.ts', 'src/app/pages/app/app.ts');
+        this.copy('src/app/pages/app/_app.ts', 'src/app/pages/app/app.ts');
+        this.copy('src/app/_index.html', 'src/app/index.html');
       }
     },
 
