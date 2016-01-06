@@ -2,8 +2,6 @@
   'use strict';
 
   var chalk = require('chalk');
-  var lodash = require('lodash');
-  var path = require('path');
   var yeoman = require('yeoman-generator');
   var yosay = require('yosay');
 
@@ -12,14 +10,6 @@
       yeoman.generators.Base.apply(this, arguments);
       // add option to skip install
       this.option('skip-install');
-      this.argument('appname', {
-        type: String,
-        required: false
-      });
-      var appName = this.appname || path.basename(process.cwd());
-      this.appname = lodash.kebabCase(appName);
-      this.modulename = lodash.snakeCase(appName);
-      this.classname = lodash.capitalize(lodash.camelCase(appName));
     },
 
     prompting: function () {
@@ -77,8 +67,6 @@
           this.log('');
         }.bind(this));
       }.bind(this));
-
     }
   });
-
 })();

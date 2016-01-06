@@ -20,6 +20,10 @@ In your desired project folder run the generator.
 ```bash
 yo angular2-ts
 ```
+or
+```bash
+yo angular2-ts --skip-install
+```
 
 You'll be prompted to start the server once the generator has finished.
 
