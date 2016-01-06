@@ -31,4 +31,4 @@ You can add verbose debug messages while running tests by doing:
 DEBUG=* node app.js
 ```
 
-[1]: http://github.com/swirlycheetah/generator-angular2/issues
+[1]: http://github.com/rrgarciach/generator-angular2-ts/issues

@@ -1,98 +1,155 @@
 var gulp = require('gulp');
-var rename = require('gulp-rename');
-var traceur = require('gulp-traceur');
-var webserver = require('gulp-webserver');
-var sourcemaps = require('gulp-sourcemaps');
 var ts = require('gulp-typescript');
+var typescript = require('typescript');
+var del = require('del');
+var runSequence = require('run-sequence');
+var sourcemaps = require('gulp-sourcemaps');
+var connect = require('gulp-connect');
+var open = require('gulp-open');
+var KarmaServer = require('karma').Server;
+var merge = require('merge-stream');
 
-// run init tasks
-gulp.task('default', ['dependencies', 'js', 'html', 'css']);
+var serverOptions = {
+  root: 'dist',
+  port: 8000,
+  livereload: true
+};
 
-// run development task
-gulp.task('dev', ['watch', 'serve']);
-
-// run development task
-gulp.task('tsc', ['typescript-compile', 'traceur']);
-
-// serve the build dir
-gulp.task('serve', function () {
-  gulp.src('build')
-    .pipe(webserver({
-      open: true
-    }));
+// Main task
+gulp.task('default', function () {
+  runSequence(
+    'clean',
+    'ts',
+    'html-css',
+    'dependencies',
+    'test',
+    'clean-test',
+    'serve',
+    'browser',
+    'watch');
 });
 
-// watch for changes and run the relevant task
-gulp.task('watch', function () {
-  gulp.watch('src/**/*.js', ['js']);
-  gulp.watch('src/**/*.html', ['html']);
-  gulp.watch('src/**/*.css', ['css']);
+// Main build task
+gulp.task('build', function() {
+  runSequence(
+    'clean',
+    'ts-prod',
+    'html-css',
+    'dependencies',
+    'test',
+    'clean-test');
 });
 
-// move dependencies into build dir
+// Main task for development stack
+gulp.task('dev', function() {
+  runSequence(
+    'clean',
+    'ts',
+    'html-css',
+    'dependencies',
+    'test',
+    'serve',
+    'browser',
+    'watch');
+});
+
+// default task starts watcher. in order not to start it each change
+// watcher will run the task bellow
+gulp.task('watch-rebuild', function (callback) {
+  runSequence(
+    'clean',
+    'ts',
+    'html-css',
+    'dependencies',
+    'test',
+    'clean-test');
+  callback();
+});
+
+// Copy dependencies to dist folder
 gulp.task('dependencies', function () {
-  return gulp.src([
-    'node_modules/systemjs/dist/system-csp-production.src.js',
-    'node_modules/reflect-metadata/Reflect.js',
-    'node_modules/systemjs/dist/system.src.js',
+  var rxjs = gulp.src([
     'node_modules/rxjs/bundles/Rx.js',
-    'node_modules/angular2/bundles/angular2-polyfills.js',
-    'node_modules/angular2/bundles/angular2.js',
-    'node_modules/angular2/bundles/http.js',
-    'node_modules/angular2/bundles/router.js',
-    'node_modules/angular2/bundles/upgrade.js'
   ])
-    .pipe(gulp.dest('build/lib'))
+    .pipe(gulp.dest('dist/lib/rjxs'));
+
+  var angular = gulp.src([
+    'node_modules/angular2/bundles/angular2.dev.js',
+    'node_modules/angular2/bundles/http.js',
+    'node_modules/angular2/bundles/angular2-polyfills.js'
+  ])
+    .pipe(gulp.dest('dist/lib/angular2'));
+
+  var dependencies = gulp.src([
+    'node_modules/traceur/bin/traceur-runtime.js',
+    'node_modules/systemjs/dist/system.js',
+  ])
+    .pipe(gulp.dest('dist/lib'));
+
+  return merge(rxjs, dependencies);
 });
 
-// transpile & move js
-gulp.task('js', function () {
-  return gulp.src('src/**/*.js')
-    .pipe(rename({
-      extname: ''
-    }))
-    .pipe(traceur({
-      modules: 'instantiate',
-      moduleName: true,
-      annotations: true,
-      types: true,
-      memberVariables: true
-    }))
-    .pipe(rename({
-      extname: '.js'
-    }))
-    .pipe(gulp.dest('build'));
+// TypeScript compilation to dist directory
+gulp.task('ts', function () {
+  var tsProject = ts.createProject('tsconfig.json', {
+    typescript: typescript
+  });
+
+  return gulp.src(['src/**/**.ts'])
+    .pipe(sourcemaps.init())
+    .pipe(ts(tsProject))
+    .pipe(sourcemaps.write('./', { includeContent: true, sourceRoot: '/src' }))
+    .pipe(gulp.dest('dist'));
 });
 
-// move html
-gulp.task('html', function () {
-  return gulp.src('src/**/*.html')
-    .pipe(gulp.dest('build'))
+// Compiles typescript for production environment removing the source maps used only in development mode
+gulp.task('ts-prod', function () {
+  var tsProject = ts.createProject('tsconfig.json', {
+    typescript: typescript
+  });
+
+  return gulp.src(['src/**/**.ts'])
+    .pipe(ts(tsProject))
+    .pipe(gulp.dest('dist'));
 });
 
-// move css
-gulp.task('css', function () {
-  return gulp.src('src/**/*.css')
-    .pipe(gulp.dest('build'))
+// Copy HTML and CSS to dist directory
+gulp.task('html-css', function () {
+  return gulp.src(['src/**/**.html', 'src/**/**.css'])
+    .pipe(gulp.dest('dist'))
+    .pipe(connect.reload());
 });
 
-var tsProject = ts.createProject('src/tsconfig.json');
-
-gulp.task('typescript-compile', function () {
-  var tsResult = tsProject.src() // instead of gulp.src(...)
-    .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-    .pipe(ts(tsProject));
-
-  return tsResult.js.pipe(gulp.dest('build'));
+// Removes dist directory.
+gulp.task('clean', function () {
+  return del(['dist']);
 });
 
-gulp.task('traceur', function () {
-  return gulp.src('build/*.js')
-    .pipe(traceur({
-      modules: 'instantiate',
-      moduleName: true,
-      annotations: true,
-      types: true,
-      memberVariables: true
-    }));
+// Watch changes
+gulp.task('watch', function () {
+  gulp.watch(['src/**/**.ts', 'src/**/**.html'], ['watch-rebuild']);
+});
+
+// Serve lite server
+gulp.task('serve', function () {
+  connect.server(serverOptions);
+});
+
+// Opens lite server in browser
+gulp.task('browser', function () {
+  gulp.src('index.html')
+    .pipe(open({ uri: 'http://localhost:' + serverOptions.port }));
+});
+
+// Removes all TypeScript test files
+gulp.task('clean-test', function () {
+  return del(['dist/**/**.spec.js', 'dist/**/**.spec.js.map']);
+});
+
+// Run TypeScript tests
+gulp.task('test', function (done) {
+  new KarmaServer({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
 });
